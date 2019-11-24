@@ -50,11 +50,11 @@ extension Float: Real {
   }
   
   @_transparent public static func pow(_ x: Float, _ n: Int) -> Float {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Float. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
-    return libm_powf(x, Float(n))
+    if let p = Float(exactly: n) { return pow(x, p) }
+    // If n is not representable as a Float, use x^n = x^p * x^(n-p).
+    // Use .nextUp or .nextDown to avoid spurious overflow / underflow.
+    let p = (n < 0) ? Float(n).nextUp : Float(n).nextDown
+    return pow(x, p) * pow(x, n - Int(p))
   }
   
   @_transparent public static func root(_ x: Float, _ n: Int) -> Float {
@@ -129,11 +129,11 @@ extension Double: Real {
   }
   
   @_transparent public static func pow(_ x: Double, _ n: Int) -> Double {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Double. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
-    return libm_pow(x, Double(n))
+    if let p = Double(exactly: n) { return pow(x, p) }
+    // If n is not representable as a Double, use x^n = x^p * x^(n-p).
+    // Use .nextUp or .nextDown to avoid spurious overflow / underflow.
+    let p = (n < 0) ? Double(n).nextUp : Double(n).nextDown
+    return pow(x, p) * pow(x, n - Int(p))
   }
   
   @_transparent public static func root(_ x: Double, _ n: Int) -> Double {
@@ -191,11 +191,11 @@ extension Float80: Real {
   }
   
   @_transparent public static func pow(_ x: Float80, _ n: Int) -> Float80 {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Float80. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
-    return libm_powl(x, Float80(n))
+    if let p = Float80(exactly: n) { return pow(x, p) }
+    // If n is not representable as a Float80, use x^n = x^p * x^(n-p).
+    // Use .nextUp or .nextDown to avoid spurious overflow / underflow.
+    let p = (n < 0) ? Float80(n).nextUp : Float80(n).nextDown
+    return pow(x, p) * pow(x, n - Int(p))
   }
   
   @_transparent public static func root(_ x: Float80, _ n: Int) -> Float80 {
