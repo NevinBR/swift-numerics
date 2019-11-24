@@ -11,8 +11,22 @@
 
 #define HEADER_SHIM static inline __attribute__((__always_inline__))
 
-// MARK: - math functions for float
+// This header uses most of the libm functions, but we don't want to end up
+// exporting the libm declarations to modules that include NumericsShims, so
+// we don't want to actually #include <math.h>.
+//
+// For most of the functions, we can get around this by using __builtin_func
+// instead of func, since the compiler knows about these operations, but for
+// the non-standard extensions, we need to include our own declarations. This
+// is a little bit risky, in that we might end up missing an attribute that
+// gets added and effects calling conventions, etc, but that's expected to be
+// exceedingly rare.
+//
+// Still, we'll eventually want to find a better solution to this problem,
+// especially if people start using this package on systems that are not
+// Darwin or Ubuntu.
 
+// MARK: - math functions for float
 HEADER_SHIM float libm_cosf(float x) {
   return __builtin_cosf(x);
 }
@@ -81,6 +95,10 @@ HEADER_SHIM float libm_powf(float x, float y) {
   return __builtin_powf(x, y);
 }
 
+HEADER_SHIM float libm_cbrtf(float x) {
+  return __builtin_cbrtf(x);
+}
+
 HEADER_SHIM float libm_atan2f(float y, float x) {
   return __builtin_atan2f(y, x);
 }
@@ -127,9 +145,7 @@ HEADER_SHIM float libm_log10f(float x) {
 
 #if !defined _WIN32
 HEADER_SHIM float libm_lgammaf(float x, int *signp) {
-#if __APPLE__
   extern float lgammaf_r(float, int *);
-#endif
   return lgammaf_r(x, signp);
 }
 #endif
@@ -204,6 +220,10 @@ HEADER_SHIM double libm_pow(double x, double y) {
   return __builtin_pow(x, y);
 }
 
+HEADER_SHIM double libm_cbrt(double x) {
+  return __builtin_cbrt(x);
+}
+
 HEADER_SHIM double libm_atan2(double y, double x) {
   return __builtin_atan2(y, x);
 }
@@ -245,9 +265,7 @@ HEADER_SHIM double libm_log10(double x) {
 
 #if !defined _WIN32
 HEADER_SHIM double libm_lgamma(double x, int *signp) {
-#if __APPLE__
   extern double lgamma_r(double, int *);
-#endif
   return lgamma_r(x, signp);
 }
 #endif
@@ -320,6 +338,10 @@ HEADER_SHIM long double libm_log1pl(long double x) {
 
 HEADER_SHIM long double libm_powl(long double x, long double y) {
   return __builtin_powl(x, y);
+}
+
+HEADER_SHIM long double libm_cbrtl(long double x) {
+  return __builtin_cbrtl(x);
 }
 
 HEADER_SHIM long double libm_atan2l(long double y, long double x) {
